@@ -25,6 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.pastel_hikari.R
 import com.example.pastel_hikari.modelo.ItemCarrito
+import com.example.pastel_hikari.presentacion.vista_modelo.BoletaViewModel
 import com.example.pastel_hikari.presentacion.vista_modelo.CarritoViewModel
 import com.example.pastel_hikari.util.formatCurrency
 
@@ -32,8 +33,10 @@ import com.example.pastel_hikari.util.formatCurrency
 @Composable
 fun PantallaCarrito(
     navController: NavController,
-    carritoViewModel: CarritoViewModel = viewModel()
+    carritoViewModel: CarritoViewModel = viewModel(),
+    boletaViewModel: BoletaViewModel = viewModel()
 ) {
+    // 'items' ahora viene filtrado directamente desde el ViewModel
     val items by carritoViewModel.items.collectAsState(initial = emptyList())
     val precioTotal = items.sumOf { it.precio * it.cantidad }
 
@@ -89,7 +92,13 @@ fun PantallaCarrito(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
-                        onClick = { /* Lógica para pagar irá aquí */ },
+                        onClick = { 
+                            boletaViewModel.crearBoletaYAsignarItems { boletaId ->
+                                navController.navigate("boleta/${boletaId}") {
+                                    popUpTo("home") 
+                                }
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp)

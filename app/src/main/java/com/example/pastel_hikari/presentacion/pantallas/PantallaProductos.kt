@@ -10,9 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -28,6 +26,7 @@ import com.example.pastel_hikari.modelo.Producto
 import com.example.pastel_hikari.presentacion.vista_modelo.CarritoViewModel
 import com.example.pastel_hikari.presentacion.vista_modelo.ProductoViewModel
 import com.example.pastel_hikari.util.formatCurrency
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,8 +36,11 @@ fun PantallaProductos(
     carritoViewModel: CarritoViewModel = viewModel()
 ) {
     val productos by productoViewModel.todosLosProductos.collectAsState(initial = emptyList())
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Pastelería Hikari") },
@@ -70,6 +72,9 @@ fun PantallaProductos(
                         },
                         onAddToCartClick = {
                             carritoViewModel.agregarOActualizarProducto(producto, 1)
+                            scope.launch {
+                                snackbarHostState.showSnackbar("¡${producto.nombre} agregado al carrito!")
+                            }
                         }
                     )
                 }

@@ -1,17 +1,12 @@
 package com.example.pastel_hikari.navegacion
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.pastel_hikari.presentacion.pantallas.PantallaCarrito
-import com.example.pastel_hikari.presentacion.pantallas.PantallaDetalleProducto
-import com.example.pastel_hikari.presentacion.pantallas.PantallaInicioSesion
-import com.example.pastel_hikari.presentacion.pantallas.PantallaProductos
-import com.example.pastel_hikari.presentacion.pantallas.PantallaRegistro
+import com.example.pastel_hikari.presentacion.pantallas.*
 
 @Composable
 fun NavegacionPrincipal() {
@@ -41,9 +36,19 @@ fun NavegacionPrincipal() {
             PantallaDetalleProducto(navController = navController, productoId = productoId)
         }
 
-        // La ruta "carrito" ahora muestra la pantalla del carrito real
         composable("carrito") {
             PantallaCarrito(navController = navController)
+        }
+
+        // Ruta para la pantalla de la boleta
+        composable(
+            route = "boleta/{boletaId}",
+            arguments = listOf(navArgument("boletaId") { type = NavType.LongType })
+        ) {
+            val boletaId = it.arguments?.getLong("boletaId")
+            requireNotNull(boletaId) { "El id de la boleta no puede ser nulo" }
+
+            PantallaBoleta(navController = navController, boletaId = boletaId)
         }
     }
 }

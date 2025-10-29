@@ -1,22 +1,29 @@
 package com.example.pastel_hikari.datos
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room.*
+import com.example.pastel_hikari.datos.base_de_datos.dao.BoletaDao
 import com.example.pastel_hikari.datos.base_de_datos.dao.CarritoDao
 import com.example.pastel_hikari.datos.base_de_datos.dao.ProductoDao
 import com.example.pastel_hikari.datos.base_de_datos.dao.UsuarioDao
+import com.example.pastel_hikari.modelo.Boleta
 import com.example.pastel_hikari.modelo.ItemCarrito
 import com.example.pastel_hikari.modelo.Producto
 import com.example.pastel_hikari.modelo.Usuario
+import com.example.pastel_hikari.util.Converters
 
-@Database(entities = [Usuario::class, Producto::class, ItemCarrito::class], version = 2, exportSchema = false)
+@Database(
+    entities = [Usuario::class, Producto::class, ItemCarrito::class, Boleta::class],
+    version = 3, // Incrementamos la versión
+    exportSchema = false
+)
+@TypeConverters(Converters::class) // Le decimos a Room que use nuestros conversores
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun usuarioDao(): UsuarioDao
     abstract fun productoDao(): ProductoDao
     abstract fun carritoDao(): CarritoDao
+    abstract fun boletaDao(): BoletaDao
 
     companion object {
         @Volatile
@@ -29,7 +36,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "pastel_hikari_database"
                 )
-                .fallbackToDestructiveMigration() // Añadido para manejar actualizaciones de versión
+                .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance
                 instance

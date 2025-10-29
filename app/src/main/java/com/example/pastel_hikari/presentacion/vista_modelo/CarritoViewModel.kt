@@ -8,6 +8,8 @@ import com.example.pastel_hikari.datos.repositorio.CarritoRepositorio
 import com.example.pastel_hikari.modelo.ItemCarrito
 import com.example.pastel_hikari.modelo.Producto
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class CarritoViewModel(application: Application) : AndroidViewModel(application) {
@@ -19,15 +21,16 @@ class CarritoViewModel(application: Application) : AndroidViewModel(application)
     init {
         val carritoDao = AppDatabase.getDatabase(application).carritoDao()
         repositorio = CarritoRepositorio(carritoDao)
-        items = repositorio.obtenerItems()
+        // El Flow se filtra aquí, en el ViewModel, para mostrar solo los items del carrito actual.
+        items = repositorio.obtenerItems().map { listaCompleta ->
+            listaCompleta.filter { it.boletaId == null }
+        }
     }
 
-    /**
-     * Agrega un producto al carrito. Si ya existe, actualiza la cantidad.
-     */
     fun agregarOActualizarProducto(producto: Producto, cantidad: Int) {
         viewModelScope.launch {
-            val itemExistente = repositorio.obtenerPorProductoId(producto.id)
+            val itemsActuales = items.first() // Obtenemos la lista ya filtrada de items en el carrito
+            val itemExistente = itemsActuales.find { it.productoId == producto.id }
 
             if (itemExistente != null) {
                 val itemActualizado = itemExistente.copy(cantidad = itemExistente.cantidad + cantidad)
@@ -45,19 +48,12 @@ class CarritoViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    /**
-     * Elimina un item específico del carrito.
-     */
     fun eliminarItem(item: ItemCarrito) {
         viewModelScope.launch {
             repositorio.eliminar(item)
         }
     }
 
-    /**
-     * Cambia la cantidad de un item específico en el carrito.
-     * Si la cantidad llega a 0, se elimina.
-     */
     fun cambiarCantidad(item: ItemCarrito, nuevaCantidad: Int) {
         viewModelScope.launch {
             if (nuevaCantidad > 0) {
@@ -69,12 +65,15 @@ class CarritoViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    /**
-     * Vacía todo el carrito de compras.
-     */
     fun vaciarCarrito() {
         viewModelScope.launch {
-            repositorio.vaciarCarrito()
+            // Le pedimos al DAO que borre solo los items que están en el carrito
+            // Para esto, primero necesitamos una función en el DAO que haga esto.
+            // Por ahora, lo haremos manualmente, pero lo ideal es delegar esto al DAO.
+            val itemsEnCarrito = items.first()
+            for (item in itemsEnCarrito) {
+                repositorio.eliminar(item)
+            }
         }
     }
 }
