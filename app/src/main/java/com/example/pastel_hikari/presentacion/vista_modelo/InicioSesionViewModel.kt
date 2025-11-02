@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pastel_hikari.datos.AppDatabase
+import com.example.pastel_hikari.util.SesionManager
 import com.example.pastel_hikari.datos.repositorio.UsuarioRepositorio
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,6 +30,7 @@ data class InicioSesionUiState(
 class InicioSesionViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repositorio: UsuarioRepositorio
+    private val sesionManager: SesionManager
 
     private val _uiState = MutableStateFlow(InicioSesionUiState())
     val uiState = _uiState.asStateFlow()
@@ -36,6 +38,7 @@ class InicioSesionViewModel(application: Application) : AndroidViewModel(applica
     init {
         val usuarioDao = AppDatabase.getDatabase(application).usuarioDao()
         repositorio = UsuarioRepositorio(usuarioDao)
+        sesionManager = SesionManager(application)
     }
 
     // --- MANEJADORES DE EVENTOS ---
@@ -60,7 +63,13 @@ class InicioSesionViewModel(application: Application) : AndroidViewModel(applica
             val usuario = repositorio.obtenerPorCorreo(state.correo).firstOrNull()
 
             if (usuario != null && usuario.contrasena == state.contrasena) {
-                // ¡Éxito! El usuario existe y la contraseña coincide.
+                // ¡Éxito! Guardar la sesión
+                sesionManager.guardarSesion(
+                    usuarioId = usuario.id,
+                    correo = usuario.correo,
+                    nombre = usuario.nombre
+                )
+
                 _uiState.update { it.copy(estado = EstadoLogin.EXITOSO) }
             } else {
                 // Error: El usuario no existe o la contraseña es incorrecta.

@@ -13,13 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.pastel_hikari.R
 import com.example.pastel_hikari.presentacion.vista_modelo.EstadoLogin
 import com.example.pastel_hikari.presentacion.vista_modelo.InicioSesionViewModel
-
 @Composable
 fun PantallaInicioSesion(
     navController: NavController,
