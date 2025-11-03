@@ -7,8 +7,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddShoppingCart
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.pastel_hikari.R
+import com.example.pastel_hikari.util.SesionManager
 import com.example.pastel_hikari.modelo.Producto
 import com.example.pastel_hikari.presentacion.vista_modelo.CarritoViewModel
 import com.example.pastel_hikari.presentacion.vista_modelo.ProductoViewModel
@@ -35,9 +35,14 @@ fun PantallaProductos(
     productoViewModel: ProductoViewModel = viewModel(),
     carritoViewModel: CarritoViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val sesionManager = remember { SesionManager(context) }
+    val nombreUsuario = sesionManager.obtenerNombre() ?: "Usuario"
+
     val productos by productoViewModel.todosLosProductos.collectAsState(initial = emptyList())
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var mostrarMenuUsuario by remember { mutableStateOf(false) }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -45,8 +50,99 @@ fun PantallaProductos(
             TopAppBar(
                 title = { Text("Pastelería Hikari") },
                 actions = {
+                    // Botón del carrito
                     IconButton(onClick = { navController.navigate("carrito") }) {
                         Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito de Compras")
+                    }
+
+                    // Botón del menú de usuario
+                    IconButton(onClick = { mostrarMenuUsuario = true }) {
+                        Icon(Icons.Default.AccountCircle, contentDescription = "Menú de usuario")
+                    }
+
+                    // Menú desplegable
+                    DropdownMenu(
+                        expanded = mostrarMenuUsuario,
+                        onDismissRequest = { mostrarMenuUsuario = false }
+                    ) {
+                        // Encabezado con nombre del usuario
+                        DropdownMenuItem(
+                            text = {
+                                Column {
+                                    Text(
+                                        text = "Hola, $nombreUsuario",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = sesionManager.obtenerCorreo() ?: "",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            },
+                            onClick = { },
+                            enabled = false
+                        )
+
+                        Divider()
+
+                        // Opción: Mi Perfil
+                        DropdownMenuItem(
+                            text = { Text("Mi Perfil") },
+                            onClick = {
+                                mostrarMenuUsuario = false
+                                // TODO: Navegar a pantalla de perfil cuando la tengas
+                                // navController.navigate("perfil")
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Próximamente: Mi Perfil")
+                                }
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Default.Person, contentDescription = null)
+                            }
+                        )
+
+                        // Opción: Mis Pedidos
+                        DropdownMenuItem(
+                            text = { Text("Mis Pedidos") },
+                            onClick = {
+                                mostrarMenuUsuario = false
+                                // TODO: Navegar a pantalla de pedidos cuando la tengas
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Próximamente: Mis Pedidos")
+                                }
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Default.Receipt, contentDescription = null)
+                            }
+                        )
+
+                        Divider()
+
+                        // Opción: Cerrar Sesión
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    "Cerrar Sesión",
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            },
+                            onClick = {
+                                mostrarMenuUsuario = false
+                                sesionManager.cerrarSesion()
+                                navController.navigate("login") {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Logout,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        )
                     }
                 }
             )
@@ -66,7 +162,7 @@ fun PantallaProductos(
             ) {
                 items(productos) { producto ->
                     ProductoCard(
-                        producto = producto, 
+                        producto = producto,
                         onProductoClick = {
                             navController.navigate("producto_detalle/${producto.id}")
                         },
