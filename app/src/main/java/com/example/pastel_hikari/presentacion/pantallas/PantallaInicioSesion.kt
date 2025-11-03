@@ -87,8 +87,7 @@ fun PantallaInicioSesion(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
             Spacer(modifier = Modifier.height(32.dp))
-            
-            // --- BOTÓN INICIAR SESIÓN ---
+
             Button(
                 onClick = inicioSesionViewModel::iniciarSesion,
                 modifier = Modifier.fillMaxWidth().height(48.dp),
@@ -102,7 +101,6 @@ fun PantallaInicioSesion(
             }
             Spacer(modifier = Modifier.height(16.dp))
 
-            // --- BOTÓN REGISTRO ---
             TextButton(onClick = { navController.navigate("registro") }) { // Asumimos que "registro" es la ruta
                 Text("¿No tienes una cuenta? Regístrate")
             }

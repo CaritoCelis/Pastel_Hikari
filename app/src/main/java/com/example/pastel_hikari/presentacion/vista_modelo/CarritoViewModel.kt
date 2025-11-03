@@ -21,7 +21,6 @@ class CarritoViewModel(application: Application) : AndroidViewModel(application)
     init {
         val carritoDao = AppDatabase.getDatabase(application).carritoDao()
         repositorio = CarritoRepositorio(carritoDao)
-        // El Flow se filtra aquí, en el ViewModel, para mostrar solo los items del carrito actual.
         items = repositorio.obtenerItems().map { listaCompleta ->
             listaCompleta.filter { it.boletaId == null }
         }
@@ -67,9 +66,6 @@ class CarritoViewModel(application: Application) : AndroidViewModel(application)
 
     fun vaciarCarrito() {
         viewModelScope.launch {
-            // Le pedimos al DAO que borre solo los items que están en el carrito
-            // Para esto, primero necesitamos una función en el DAO que haga esto.
-            // Por ahora, lo haremos manualmente, pero lo ideal es delegar esto al DAO.
             val itemsEnCarrito = items.first()
             for (item in itemsEnCarrito) {
                 repositorio.eliminar(item)

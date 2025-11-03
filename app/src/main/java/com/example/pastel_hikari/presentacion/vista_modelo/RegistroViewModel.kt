@@ -132,7 +132,6 @@ class RegistroViewModel(application: Application) : AndroidViewModel(application
             "Debe aceptar los términos y condiciones"
         } else null
 
-        // Si hay algún error, actualizar el estado y salir
         if (errorNombre != null || errorApellido != null || errorFecha != null ||
             errorCorreo != null || errorContra != null || errorConfirmarContra != null ||
             errorTerminos != null) {
@@ -148,7 +147,6 @@ class RegistroViewModel(application: Application) : AndroidViewModel(application
             return
         }
 
-        // Activar indicador de carga
         _uiState.update { it.copy(estaCargando = true, mensajeError = null) }
 
         viewModelScope.launch {

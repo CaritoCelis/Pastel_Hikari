@@ -34,15 +34,12 @@ class DetalleProductoViewModel(application: Application) : AndroidViewModel(appl
 
     fun agregarAlCarrito(producto: Producto) {
         viewModelScope.launch {
-            // Buscamos si el item ya existe en el carrito
             val itemExistente = carritoDao.obtenerPorProductoId(producto.id)
 
             if (itemExistente != null) {
-                // Si existe, actualizamos la cantidad
                 val itemActualizado = itemExistente.copy(cantidad = itemExistente.cantidad + 1)
                 carritoDao.actualizar(itemActualizado)
             } else {
-                // Si no existe, creamos uno nuevo y lo insertamos
                 val nuevoItem = ItemCarrito(
                     productoId = producto.id,
                     nombre = producto.nombre,
@@ -52,7 +49,6 @@ class DetalleProductoViewModel(application: Application) : AndroidViewModel(appl
                 )
                 carritoDao.insertar(nuevoItem)
             }
-            // Informamos a la UI que el producto fue agregado
             _uiState.update { it.copy(estado = EstadoAgregar.AGREGADO) }
         }
     }

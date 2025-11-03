@@ -11,13 +11,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-// --- ESTADO DE LA PANTALLA ---
 enum class EstadoLogin {
-    INICIAL,     // Estado por defecto
-    CARGANDO,    // Cuando se está verificando al usuario
-    EXITOSO,     // Cuando el login es correcto
-    ERROR        // Cuando el correo o la contraseña son incorrectos
+    INICIAL,
+    CARGANDO,
+    EXITOSO,
+    ERROR
 }
 
 data class InicioSesionUiState(
@@ -26,7 +24,6 @@ data class InicioSesionUiState(
     val estado: EstadoLogin = EstadoLogin.INICIAL
 )
 
-// --- VIEWMODEL ---
 class InicioSesionViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repositorio: UsuarioRepositorio
@@ -41,7 +38,6 @@ class InicioSesionViewModel(application: Application) : AndroidViewModel(applica
         sesionManager = SesionManager(application)
     }
 
-    // --- MANEJADORES DE EVENTOS ---
     fun onCorreoChange(correo: String) {
         _uiState.update { it.copy(correo = correo) }
     }
@@ -50,7 +46,6 @@ class InicioSesionViewModel(application: Application) : AndroidViewModel(applica
         _uiState.update { it.copy(contrasena = contrasena) }
     }
 
-    // --- LÓGICA DE INICIO DE SESIÓN ---
     fun iniciarSesion() {
         // No continuar si ya está cargando
         if (_uiState.value.estado == EstadoLogin.CARGANDO) return
