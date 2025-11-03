@@ -14,7 +14,6 @@ class ProductoViewModel(application: Application) : AndroidViewModel(application
 
     private val repositorio: ProductoRepositorio
 
-    // Expone un Flow con la lista de productos para que la UI la observe.
     val todosLosProductos: Flow<List<Producto>>
 
     init {
@@ -22,14 +21,9 @@ class ProductoViewModel(application: Application) : AndroidViewModel(application
         repositorio = ProductoRepositorio(productoDao)
         todosLosProductos = repositorio.allProductos
 
-        // Llama a la función para poblar la base de datos si está vacía.
         insertarProductosIniciales()
     }
 
-    /**
-     * Inserta una lista de productos de ejemplo en la base de datos.
-     * Se ejecuta en una corrutina para no bloquear el hilo principal.
-     */
     private fun insertarProductosIniciales() {
         viewModelScope.launch(Dispatchers.IO) { // Usamos Dispatchers.IO para operaciones de base de datos
             val productosDeEjemplo = listOf(
